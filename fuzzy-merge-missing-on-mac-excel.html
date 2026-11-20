@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; form-action 'none'; base-uri 'none'">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Crect x='5' y='7' width='22' height='7' rx='1.5' fill='%23fff'/%3E%3Crect x='5' y='18' width='22' height='7' rx='1.5' fill='%23fff' fill-opacity='.6'/%3E%3C/svg%3E">
+<title>Power Query fuzzy merge on Mac Excel: what is reported missing, and what to do instead</title>
+<meta name="description" content="Fuzzy merge may be missing from Power Query on your Mac. Check, then use the free fix: clean case and punctuation, merge exactly. Notes on where that stops.">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#14181f;--muted:#4b5563;--line:#d5d9e0;--accent:#1d4ed8;--accent-soft:#e5edff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1218;--card:#171c25;--fg:#e7eaf0;--muted:#a3acbb;--line:#2f3745;--accent:#8fb0ff;--accent-soft:#1c2a4a}}
+:root[data-theme="dark"]{--bg:#0f1218;--card:#171c25;--fg:#e7eaf0;--muted:#a3acbb;--line:#2f3745;--accent:#8fb0ff;--accent-soft:#1c2a4a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 64px}
+nav{padding:20px 0;font-weight:700}
+nav a{text-decoration:none;color:var(--fg)}
+h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.15;letter-spacing:-.02em;margin:8px 0 16px}
+h2{font-size:1.45rem;line-height:1.25;margin:40px 0 12px;padding-top:24px;border-top:1px solid var(--line)}
+h3{font-size:1.1rem;margin:24px 0 8px}
+p,li{max-width:40em}
+a{color:var(--accent)}
+.muted{color:var(--muted)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;background:var(--accent-soft);padding:1px 5px;border-radius:4px}
+pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto}
+pre code{background:none;padding:0}
+.note{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px 16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav><a href="index.html">Almost Equal</a></nav>
+
+<h1>Power Query fuzzy merge on Mac Excel: what is reported missing, and what to do instead</h1>
+<p class="muted">Sources last checked 2026-11-11.</p>
+
+<p>You have two tables of company names. One says "Acme Ltd". The other says "ACME Limited". A normal merge finds nothing, so you go looking for the "Use fuzzy matching" checkbox in Power Query. On a Mac, many people report that it is not there.</p>
+
+<p>Short answer: <strong>check your own Merge dialog first.</strong> If the checkbox is missing, the free fix is to clean both columns (case, punctuation, spacing, common endings like Ltd) and then merge with an ordinary exact match. That fix handles more than you would expect. It stops working when the spelling differences are not just case and punctuation. This page covers all of it, in that order.</p>
+
+<h2>Check this first: is the checkbox really missing on your Mac?</h2>
+
+<p>We could not settle this from documentation, so here is what we found and what we could not.</p>
+
+<p><strong>What Microsoft's page says.</strong> Microsoft's support article "Create a fuzzy match (Power Query)" describes the feature: in the Merge dialog you tick <em>Use fuzzy matching to perform the merge</em>, then set a Similarity Threshold (default 0.80), Ignore case, Maximum number of matches, and an optional Transformation table. It says fuzzy matching works only on text columns in merge operations, and that Power Query uses the Jaccard similarity algorithm. (Read 2026-11-11.)</p>
+
+<p><strong>What we could not confirm.</strong> The article has an "Applies To" list near the top. When we opened the page on 2026-11-11 the list came back empty in the text we could read, so <strong>we could not check which Excel versions and platforms it names.</strong> An earlier reading on 2026-11-10 relied on that Applies-To metadata, not on a release note or a plain sentence saying "not on Mac". Treat the Mac absence as <em>inferred from metadata as of 2026-11-10 and not rechecked</em>. Microsoft's page does not, in the text we could read, state "not available on Mac" anywhere.</p>
+
+<p><strong>What a Microsoft MVP posted.</strong> On the Microsoft Community Hub, a post dated 2024-07-10 by an MVP from SumProduct says that on a Mac "you can't" set up the fuzzy match "because Fuzzy match doesn't exist there", and that a query using it errors on refresh when opened on a Mac. That is a 2024 report from a named expert, not a current statement from Microsoft.</p>
+
+<p><strong>What points the other way.</strong> A vendor page that sells a competing tool says the opposite: that Power Query's Fuzzy Merge "is available in Excel for Mac". It is undated in the text we read, and it cites no Microsoft documentation. It is a seller's page, so weigh it accordingly. But it disagrees with the 2024 post, and software changes.</p>
+
+<p>So there are two honest readings: it was missing as of mid-2024 and may have been added since, or it is still missing. <strong>You can settle it in under a minute:</strong> open Power Query on your Mac, choose Home, then Merge Queries, pick two tables and two columns, and look for the <em>Use fuzzy matching to perform the merge</em> checkbox. If it is there, use it. Microsoft's page shows how.</p>
+
+<p>If it is not there, or if you need a file to work for colleagues on both Mac and Windows, keep reading. The MVP's advice for shared files is not to use fuzzy matching at all, because the query will error for the Mac user.</p>
+
+<h2>The free fix that needs no tool: clean, then merge exactly</h2>
+
+<p>Fuzzy matching is doing two jobs at once. It forgives case and punctuation differences, and it forgives small spelling differences. Most of the pain in real company lists is the first kind. You can do that part yourself.</p>
+
+<p>Excel's exact-match lookups are already case-insensitive ("acme" finds "ACME"), so the real problems are punctuation, spacing and endings. The plan is: build a cleaned copy of the name in a helper column on each side, then merge or look up on the helper columns.</p>
+
+<h3>Steps (formulas, any Excel version)</h3>
+
+<p>Assume list 1 has names in column A, list 2 has names in column A of another sheet.</p>
+
+<ol>
+<li><strong>Insert a helper column</strong> next to the names in each list. Call it <code>Key</code>.</li>
+<li><strong>Remove punctuation.</strong> In the first helper cell, wrap the name in nested SUBSTITUTE calls, one per character you want gone: full stops, commas, apostrophes, ampersands. For example:
+<pre><code>=LOWER(TRIM(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(A2,".",""),",",""),"'","")))</code></pre>
+The same formula does three jobs: removes the characters, trims stray spaces, and lowercases.</li>
+<li><strong>Swap "&amp;" for "and"</strong> (or the reverse) so "Smith &amp; Sons" and "Smith and Sons" end up the same. Add one more SUBSTITUTE of <code>"&amp;"</code> to <code>"and"</code> inside the formula. Do this before the LOWER, and keep spaces around it: <code>SUBSTITUTE(x," &amp; "," and ")</code>.</li>
+<li><strong>Standardise the endings.</strong> Pick one form and rewrite the rest: <code>" limited"</code> to <code>" ltd"</code>, <code>" incorporated"</code> to <code>" inc"</code>, <code>" l.l.c."</code> handled by the punctuation step first and then <code>" l l c"</code> to <code>" llc"</code>. One SUBSTITUTE per variant. Do the endings after you have lowercased, so you only write each variant once.</li>
+<li><strong>Fill the formula down</strong> the whole column on both lists.</li>
+<li><strong>Look up on the key.</strong> Use XLOOKUP, or INDEX/MATCH, on the <code>Key</code> columns instead of the raw names, with the exact-match option.</li>
+<li><strong>Read the misses.</strong> Filter for the rows that still return no match. Those are the ones that need a person (or the next section).</li>
+</ol>
+
+<h3>The same idea in Power Query on Mac</h3>
+
+<p>This is the route the MVP's post describes: transform the text columns in both queries so they share a case (lowercase, uppercase or capitalised), then merge with fuzzy matching switched off. In the Power Query editor, select the column, then use the text transform commands (for example Transform, then Format, then lowercase and Trim) and repeat for the second query. Then use Merge Queries with an exact match on the transformed columns. For endings, use Replace Values on each query. Menu names can differ between versions, so treat the labels as a guide.</p>
+
+<p>Note that we have not run these steps on a Mac. SUBSTITUTE, TRIM, LOWER, XLOOKUP and INDEX/MATCH are standard Excel functions, but test on a small sample before trusting it on a big file.</p>
+
+<h3>Tip: keep the original name</h3>
+
+<p>Do not overwrite the original names. Merge on <code>Key</code>, but keep the raw name beside it, so you can read both and spot a bad merge.</p>
+
+<h2>Where the free fix stops being enough</h2>
+
+<p>Cleaning is exact: two cleaned strings are either identical or not. That is why it fails on:</p>
+
+<ul>
+<li><strong>Abbreviations.</strong> "Intl Hardware Supply" and "International Hardware Supply". You would need a SUBSTITUTE for every abbreviation, and you do not know in advance which ones your data contains.</li>
+<li><strong>Missing characters.</strong> "OBrien and Sons" against "O'Brien and Sons" is fixed by the apostrophe step. "Obrian and Sons" is not.</li>
+<li><strong>Transposed words.</strong> "Sons Smith &amp; Co" against "Smith &amp; Sons Co".</li>
+<li><strong>Typos and near-spellings.</strong> "Smith Haulage" and "Smyth Haulage".</li>
+<li><strong>Extra or missing words.</strong> "The Globex Group" against "Globex". Stripping "the" and "group" helps for that one, but each new word you strip risks merging two different companies.</li>
+</ul>
+
+<p>At that point you have three options: keep adding SUBSTITUTE rules and accept a long fragile formula, use a Windows machine where Microsoft's fuzzy merge is documented, or use something that scores how similar two names are.</p>
+
+<h2>The tool, last, and honestly scoped</h2>
+
+<p>Almost Equal is a free, single HTML file. It is not an Excel add-in and has no installer or account. You open it in a browser, load a .xlsx or .csv file (the page also accepts .xlsm, .xls, .tsv and .ods, but those have not been tested), choose the column of names, and it cleans each value (case, punctuation, accents, legal endings such as Inc, Ltd and Limited) and scores every pair by similarity. You see the cleaned version beside the original. Nothing is merged until you click Apply decisions, and pairs that are not identical after cleaning start unchecked, so you accept each one yourself. <a href="index.html">Download page</a>.</p>
+
+<p>What it does and does not do:</p>
+
+<ul>
+<li><strong>It finds near-duplicate rows inside one list.</strong> That is the whole of what is built. On the built-in sample data, "Acme Inc." and "ACME Incorporated" score 100, and "Smith Haulage" and "Smyth Haulage" score 97 and wait for your decision. Those are results on the sample, not an accuracy claim.</li>
+<li><strong>It is built to run with no network calls.</strong> The page makes no network requests; we recorded the browser's network panel through a full run, and it showed one request, for the page itself. We have not yet run it with the network adapter switched off, so test with the sample data before using your own file.</li>
+<li><strong>Limits.</strong> Free, with no purchase option. It reads the first 1,000 rows of the file you load. That means at most 1,000 distinct values and at most 499,500 comparisons per run.</li>
+<li><strong>It matches on one column at a time.</strong> It does not understand nicknames ("Bob" and "Robert"), match by sound, or read addresses. It does not change your original file; it produces new CSV or XLSX files.</li>
+<li><strong>Not tested on Mac.</strong> It is one static page meant for a current browser. No one on our side has yet run it on a Mac or in Safari, so if you try it there and it misbehaves, that is information we do not have yet. We have not compared its accuracy or speed against Power Query and make no claim either way.</li>
+</ul>
+
+<p>It does not replace the cleaning steps above. Doing those first makes its list shorter and its scores easier to read.</p>
+
+<h2>If you have two lists and a one-list tool</h2>
+
+<div class="note">
+<p>This is a manual workaround, not a feature. Almost Equal has no mode for two lists. A tester ran the workaround below on a small made-up file and judged it usable but fragile, so read all three warnings before you try it.</p>
+
+<p>The steps: paste the second list under the first in one sheet, with matching column layouts; delete the second list's header row; add a column of your own saying which list each row came from; save the stack as one file; load it; choose the name column; run Find duplicates.</p>
+
+<p><strong>Three things you must know before you use it:</strong></p>
+
+<ol>
+<li><strong>You add the tag column, and the tool will not ask you to.</strong> It never prompts for it. Without a column you filled in yourself, the downloaded files carry no information at all about which list a row came from. On screen, the row number is then the only hint. The exported log of removed rows names the matched partner by row number only, so you will need a lookup back into your sheet to see both sides of a pair.</li>
+<li><strong>The 1,000-row cap covers both lists combined</strong>, so the practical limit is roughly 500 rows plus 500, not 1,000 each. The cap takes the first 1,000 rows of the stack. If your first list alone reaches 1,000 rows, <strong>the second list is discarded entirely, and the run still completes and shows proposals, looking successful.</strong> Check the row count on the loading banner before you trust any result.</li>
+<li><strong>Duplicates within each list come back mixed in with the ones across lists, and pairs scoring 100 start accepted by default.</strong> In the test, a row from the first list was marked for removal because it duplicated another row in the same list, without the tester touching it. Review the 100-score pairs too. Expect extra proposals that have nothing to do with your question: in the test, about half of the proposals on a small stack were within-list pairs or false matches on a shared common word such as "Industries".</li>
+</ol>
+
+<p>Also: borderline pairs you leave undecided appear in none of the downloads, so a "probably the same, check by hand" list has to be written down by you from the screen.</p>
+
+<p>If that is more spreadsheet work than the job deserves, a tool built for two lists is the better answer. This one is not that tool.</p>
+</div>
+
+<h2>Sources</h2>
+
+<p class="muted">Read 2026-11-11 unless stated.</p>
+
+<ul>
+<li>Microsoft Support, "Create a fuzzy match (Power Query)": <a href="https://support.microsoft.com/en-us/excel/create-a-fuzzy-match-power-query">https://support.microsoft.com/en-us/excel/create-a-fuzzy-match-power-query</a> (en-gb copy: <a href="https://support.microsoft.com/en-gb/excel/create-a-fuzzy-match-power-query">https://support.microsoft.com/en-gb/excel/create-a-fuzzy-match-power-query</a>). Feature description, threshold options, Jaccard algorithm. The Applies-To list could not be read.</li>
+<li>Microsoft Community Hub, "How to do a Fuzzy match in Power Query in Excel for Mac?", posted 2024-07-10 by an MVP: <a href="https://techcommunity.microsoft.com/discussions/excelgeneral/how-to-do-a-fuzzy-match-in-power-query-in-excel-for-mac/4187915">https://techcommunity.microsoft.com/discussions/excelgeneral/how-to-do-a-fuzzy-match-in-power-query-in-excel-for-mac/4187915</a></li>
+<li>A vendor page that sells a competing tool says Fuzzy Merge "is available in Excel for Mac". Undated in the text we read; cites no Microsoft documentation. Not linked here.</li>
+<li>SumProduct, "Excel for Mac: no Fuzzy Merge in Power Query?" (cited by the Community Hub post): <a href="https://www.sumproduct.com/blog/article/excel-for-mac-no-fuzzy-merge-in-power-query-how-to-ignore-case-when-merging-queries">https://www.sumproduct.com/blog/article/excel-for-mac-no-fuzzy-merge-in-power-query-how-to-ignore-case-when-merging-queries</a>. We could not read this page (blocked by a bot check, which we did not bypass); we know it only from the Community Hub post and search results.</li>
+</ul>
+
+<p class="muted">Microsoft, Excel and Power Query are trademarks of Microsoft Corporation. This page is not affiliated with or endorsed by Microsoft.</p>
+</div>
+</body>
+</html>

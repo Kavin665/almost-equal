@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; form-action 'none'; base-uri 'none'">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Crect x='5' y='7' width='22' height='7' rx='1.5' fill='%23fff'/%3E%3Crect x='5' y='18' width='22' height='7' rx='1.5' fill='%23fff' fill-opacity='.6'/%3E%3C/svg%3E">
+<title>Almost Equal: find near-duplicate names in one spreadsheet list, offline</title>
+<meta name="description" content="Almost Equal finds near-duplicate names within one Excel or CSV list, such as &quot;Acme Inc.&quot; and &quot;ACME Incorporated&quot;. It runs in one page on your computer and makes no network requests.">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#14181f;--muted:#4b5563;--line:#d5d9e0;--accent:#1d4ed8;--accent-fg:#fff;--accent-soft:#e5edff;--ok:#0f6b3a;--ok-soft:#e1f5e9}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1218;--card:#171c25;--fg:#e7eaf0;--muted:#a3acbb;--line:#2f3745;--accent:#8fb0ff;--accent-fg:#0b1220;--accent-soft:#1c2a4a;--ok:#6fdc9c;--ok-soft:#10301f}}
+:root[data-theme="dark"]{--bg:#0f1218;--card:#171c25;--fg:#e7eaf0;--muted:#a3acbb;--line:#2f3745;--accent:#8fb0ff;--accent-fg:#0b1220;--accent-soft:#1c2a4a;--ok:#6fdc9c;--ok-soft:#10301f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+nav{display:flex;align-items:center;gap:10px;padding:20px 0;font-weight:700;font-size:1.125rem}
+h1{font-size:clamp(2rem,5vw,3rem);line-height:1.12;letter-spacing:-.02em;margin:0 0 16px;max-width:18em}
+h2{font-size:1.5rem;line-height:1.25;margin:0 0 12px}
+p{max-width:34em;margin:0 0 14px}
+a{color:var(--accent)}
+section{padding:48px 0;border-top:1px solid var(--line)}
+.hero{display:grid;gap:32px;padding:32px 0 56px;align-items:center}
+@media (min-width:860px){.hero{grid-template-columns:6fr 5fr}}
+.btn{display:inline-block;background:var(--accent);color:var(--accent-fg);font-weight:700;padding:12px 22px;border-radius:8px;text-decoration:none;min-height:44px}
+.btn:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.seal{background:var(--ok-soft);color:var(--ok);border:1px solid var(--ok);border-radius:8px;padding:10px 14px;display:inline-block;font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+.steps{display:grid;gap:16px;counter-reset:s}
+@media (min-width:860px){.steps{grid-template-columns:repeat(3,1fr)}}
+.muted{color:var(--muted)}
+.diagram{width:100%;height:auto}
+.diagram .ln{stroke:var(--fg)}.diagram .box{fill:var(--card);stroke:var(--fg)}
+.diagram .row{fill:var(--accent-soft);stroke:var(--accent)}.diagram .gone{stroke:var(--muted);fill:none}
+.diagram text{fill:var(--fg);font:600 12px system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav><svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="var(--accent)"/><rect x="6" y="8" width="20" height="6" rx="1.5" fill="var(--accent-fg)"/><rect x="6" y="18" width="14" height="6" rx="1.5" fill="var(--accent-fg)"/><rect x="22" y="18" width="4" height="6" rx="1.5" fill="var(--accent-fg)" fill-opacity=".45"/></svg><span>Almost Equal</span></nav>
+
+<!-- 1 HERO -->
+<header class="hero">
+  <div>
+    <h1>Your list never leaves this machine.</h1>
+    <p>Finds "Acme Inc." and "ACME Incorporated" in the same list and lets you decide which are duplicates. Nothing is uploaded.</p>
+    <p><a class="btn" href="https://github.com/Kavin665/almost-equal/releases/latest/download/almost-equal.html">Download free</a></p>
+    <p class="muted">Free. Uses the first 1,000 rows of the file you load. No account, no card.</p>
+  </div>
+  <svg class="diagram" viewBox="0 0 400 260" role="img" aria-label="Diagram: two similar company names, &quot;Acme Inc.&quot; and &quot;ACME Incorporated&quot;, sit inside a box labelled Your computer. A dashed line leads to a crossed-out cloud. Nothing is sent to the internet.">
+    <rect class="box" x="20" y="40" width="210" height="170" rx="12" stroke-width="2"/>
+    <text x="34" y="64">Your computer</text>
+    <rect class="row" x="38" y="90" width="174" height="26" rx="4"/><text x="48" y="108">Acme Inc.</text>
+    <rect class="row" x="38" y="126" width="174" height="26" rx="4"/><text x="48" y="144">ACME Incorporated</text>
+    <text x="38" y="184">Matched here</text>
+    <path class="ln" d="M230 125 H300" stroke-width="2" stroke-dasharray="5 5"/>
+    <path class="gone" d="M310 150 a22 22 0 0 1 4 -43 a28 28 0 0 1 52 6 a18 18 0 0 1 2 37 z" stroke-width="2"/>
+    <path class="ln" d="M312 100 L372 160" stroke="var(--fg)" stroke-width="3"/>
+    <text x="296" y="190">No upload</text>
+  </svg>
+</header>
+
+<!-- 2 PRIVACY PROOF -->
+<section>
+  <h2>Check it yourself. Do not take our word.</h2>
+  <p class="seal">Your list never leaves this machine.</p>
+  <div class="steps">
+    <div class="card"><strong>1</strong><p>Turn off Wi-Fi or unplug the network cable. Then open the downloaded file and click "Try it with sample data". If it needs the network, you will see it fail.</p></div>
+    <div class="card"><strong>2</strong><p>There is no server to talk to. We recorded the browser's network panel through a full run: load, match, review, export to CSV and XLSX. It showed one request, for the page itself, and nothing after.</p></div>
+    <div class="card"><strong>3</strong><p>Your IT team can read the page's security policy. Open the file in a text editor and look near the top for the line starting <code>Content-Security-Policy</code>. It tells the browser to block every connection. A text search of the file finds no <code>fetch</code>, <code>XMLHttpRequest</code>, <code>WebSocket</code> or <code>sendBeacon</code>.</p></div>
+  </div>
+</section>
+
+<!-- 3 WHO IT IS FOR -->
+<section>
+  <h2>The same company, spelled three ways.</h2>
+  <p>Your list has "Acme Inc.", "ACME Incorporated" and "Acme Ltd", and a normal lookup treats them as three different companies. A Microsoft MVP reported in 2024 that the "Use fuzzy matching" checkbox is missing from Power Query in Excel for Mac, and we could not confirm whether that is still true. If it is missing on your Mac, or you are on a work PC where you cannot install add-ins, Almost Equal is one file with nothing to install.</p>
+  <p><a href="fuzzy-merge-missing-on-mac-excel.html">Read the guide: how to check, and a free fix that needs no tool</a></p>
+</section>
+
+<!-- 4 WHAT IT DOES -->
+<section>
+  <h2>What it does</h2>
+  <div class="card">
+    <h3>Find duplicates</h3>
+    <p>Scores every pair of names in one list. "Acme Inc." and "ACME Incorporated" score 100. "Smith Haulage" and "Smyth Haulage" score 97 and wait for you to decide.</p>
+  </div>
+  <p class="muted" style="margin-top:14px">Nothing is removed until you click Apply decisions. Matches scoring below 100 start unchecked, so you accept each one.</p>
+</section>
+
+<!-- 5 PRICE STATED, no checkout -->
+<section>
+  <h2>Free, with a 1,000-row limit</h2>
+  <p>Almost Equal is free. Every feature in this version works on the first 1,000 rows of the file you load. That means a list holds at most 1,000 distinct values, and a run involves at most 499,500 comparisons.</p>
+  <p>There is no paid version and no price. Nothing here is for sale. If you need something this version does not do, such as comparing one list against another, or more than 1,000 rows, <a href="https://github.com/Kavin665/almost-equal/issues">open an issue on GitHub</a> and say what you were trying to do. Requests like that decide whether we build anything more.</p>
+  <p><a class="btn" href="https://github.com/Kavin665/almost-equal/releases/latest/download/almost-equal.html">Download free</a></p>
+</section>
+
+<!-- 6 FAQ + FOOTER -->
+<section>
+  <h2>Questions</h2>
+  <h3>What files can I load?</h3>
+  <p>.xlsx and .csv are tested and work. The page also accepts .xlsm, .xls, .tsv and .ods, but nobody has loaded those yet, so we do not know whether they work. If you try one, tell us how it went in an issue. If a file will not load, the page tells you why and what to try.</p>
+  <h3>How big can a list be?</h3>
+  <p>The free version loads the first 1,000 rows of the file you load. Matching compares every distinct value with every other, so a list has at most 1,000 distinct values and a run involves at most 499,500 comparisons. Before a run the page shows how many values it will compare and how many comparisons that involves. It does not predict how long the run will take.</p>
+  <h3>Does it work offline?</h3>
+  <p>It is built to. The page makes no network requests and contains no code that could make one; we confirmed the first in a browser's network panel. We have not yet run it with the network adapter switched off, so test that yourself with the sample data before using your own file.</p>
+  <h3>What can't it do?</h3>
+  <p>It matches on one column at a time. It does not understand nicknames ("Bob" and "Robert"), match by sound, or read addresses. It never merges on its own: you approve every match. It does not change your original file. In this version it works on one list at a time and does not merge files.</p>
+</section>
+<footer class="muted" style="padding:24px 0 48px;border-top:1px solid var(--line)">
+  <p>Almost Equal. Questions, bug reports and requests: <a href="https://github.com/Kavin665/almost-equal/issues">github.com/Kavin665/almost-equal/issues</a></p>
+  <p>Microsoft, Excel and Power Query are trademarks of their owners. This product is not affiliated with or endorsed by Microsoft.</p>
+</footer>
+</div>
+</body>
+</html>
